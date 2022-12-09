@@ -3,7 +3,7 @@
 ### Notation
 - IG(a,b) in lecture note indicates distribution with **shape=a, scale=b**.
 - G(a,b) in lecture note indicates distribution with **shape=a, rate=b**.
-- Kernel desnity: $G(a,b): x^{a-1}\exp(-x/b), IG(a,b): x^{-a-1}\exp(-bx)$
+- Kernel desnity: $G(a,b): x^{a-1}\exp(-bx), IG(a,b): x^{-a-1}\exp(-b/x)$
 - Realization of such distribution in *R*
     - `G(a, rate=b)`: R base function
     - `IG(a, scale=b)`: R nimble package function
