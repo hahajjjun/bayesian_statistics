@@ -86,3 +86,82 @@ for(i in 1:1000){
   ss_prop <- sample_ss(beta0_chain[i+1], beta1_chain[i+1], x, Y)
   ss_chain <- c(ss_chain, ss_prop)
 }
+
+##############################################
+### Nested model with model comparison: BF ###
+##############################################
+
+X <- rnorm(1000, 0, 1)
+beta <- c(0.5, 1)
+mean <- beta[1]+beta[2]*X
+y <- rep(0, 1000)
+for(i in 1:1000){
+  y[i] <- rnorm(1, mean[i], sd=0.1)
+}
+
+beta_init <- c(1, 1, 1)
+gamma_init <- 1
+
+# Prior of gamma : Bernoulli(0.5)
+# Prior of beta : beta_i ~ N(0, 100)
+# Prior of ss : ss ~ G(1, 20)
+
+log_ss_prior <- function(ss){
+  return(dgamma(ss, 1, 20, log=TRUE))
+}
+log_beta_prior <- function(beta){
+  lp <- 0
+  for(i in 1:length(beta)){
+    lp <- lp + dnorm(beta[i], mean=0, sd=10, log=TRUE)
+  }
+  return(lp)
+}
+log_likelihood <- function(beta, gamma, ss, X, y){
+  ll <- 0
+  for(i in 1:length(X)){
+    mean <- beta[1]+beta[2]*X[i]+beta[3]*(X[i]^2)*gamma
+    ll <- ll + dnorm(y[i], mean, sqrt(ss), log=TRUE)
+  }
+  return(ll)
+}
+log_beta_posterior <- function(beta, gamma, ss, X, y){
+  return(log_beta_prior(beta)+log_likelihood(beta, gamma, ss, X, y))
+}
+log_ss_posterior <- function(beta, gamma, ss, X, y){
+  return(log_ss_prior(ss)+log_likelihood(beta, gamma, ss, X, y))
+}
+
+
+beta_chain <- beta_init <- c(1, 1, 1)
+gamma_chain <- gamma_init <- 1
+ss_chain <- ss_init <- 1
+
+for(i in 1:1000){
+  for(j in 1:3){
+    beta_prop <- beta_init
+    beta_prop[j] <- beta_init[j]+rnorm(1, 0, sd=0.1)
+    thr <- log_beta_posterior(beta_prop, gamma_init, ss_init, X, y)-log_beta_posterior(beta_init, gamma_init, ss_init, X, y)
+    if(!is.nan(thr)){
+      if(log(runif(1))<thr){
+        beta_init <- beta_prop
+      }
+    }
+  }
+  gamma_prop <- rbinom(1, 1, 0.5)
+  thr <- log_likelihood(beta_init, gamma_prop, ss_init, X,y)-log_likelihood(beta_init, gamma_init, ss_init, X, y)
+  if(!is.nan(thr)){
+    if(log(runif(1))<thr){
+      gamma_init <- gamma_prop
+    }
+  }
+  ss_prop <- ss_init+rnorm(1, 0, sd=0.1)
+  thr <- log_ss_posterior(beta_init, gamma_init, ss_prop, X,y)-log_ss_posterior(beta_init, gamma_init, ss_init, X, y)
+  if(!is.nan(thr)){
+    if(log(runif(1))<thr){
+      ss_init <- ss_prop
+    }
+  }
+  beta_chain = cbind(beta_chain, beta_init)
+  gamma_chain = c(gamma_chain, gamma_init)
+  ss_chain = c(ss_chain, ss_init)
+}
