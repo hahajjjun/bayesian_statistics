@@ -25,7 +25,7 @@
  |:-:|:-:|:-:|
  |`dbinom(x, n, prob)`|$nCx\cdot p^x(1-p)^{n-x}$|
  |`dbernoulli(x, prob)`|$p^x(1-p)^{n-x}$|
- |`dpois(x, lambda)`|$\lambda^x\cdot e^{-\lambda} \over x!
+ |`dpois(x, lambda)`|$\lambda^x\cdot e^{-\lambda} \over x!$|
  |`dbeta(x, a, b)`|$x^{a-1}(1-x)^{b-1}$|$\frac{a}{a+b}$|
  |IG(a, b) > `dinvgamma(x, shape=a, rate=b)` - rinvgamma package|$x^{-a-1}e^{-b/x}$|$\frac{b}{a-1}$|
  |IG(a, b) > `dinvgamma(x, shape=a, scale=b)` - nimble package|$x^{-a-1}e^{-b/x}$|$\frac{b}{a-1}$|
